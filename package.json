@@ -1,0 +1,23 @@
+{
+  "name": "checklist-job-board",
+  "version": "1.0.0",
+  "description": "Collaborative Job Checklist & Troubleshooting Board for teams",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "checklist",
+    "collaboration",
+    "troubleshooting",
+    "real-time",
+    "project-tracking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Checklist Công Việc & Xử Lý Sự Cố</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="dark">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">✓</div>
+      <div class="logo-text">Checklist Job Board</div>
+    </div>
+    
+    <div class="user-profile-actions">
+      <!-- Teammate Name Setup -->
+      <div class="username-input-wrapper">
+        <label for="current-username">Đồng nghiệp:</label>
+        <input type="text" id="current-username" value="Đồng nghiệp 1" placeholder="Nhập tên của bạn...">
+      </div>
+      
+      <!-- Theme Switcher -->
+      <button class="theme-toggle" id="theme-toggle" title="Đổi giao diện">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun" id="theme-sun-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- App Main Layout Container -->
+  <div class="app-container">
+  
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Bảng Điều Khiển</h2>
+        <button class="btn-primary" id="btn-open-start-job" title="Chạy một checklist mới">
+          <span>+ Việc Mới</span>
+        </button>
+      </div>
+      
+      <!-- Tab Control (Jobs vs Templates) -->
+      <div class="tabs-container">
+        <button class="tab-btn active" id="tab-jobs">Công Việc</button>
+        <button class="tab-btn" id="tab-templates">Mẫu Checklist</button>
+      </div>
+      
+      <div class="sidebar-content">
+        <!-- Active Jobs Panel -->
+        <div id="panel-jobs" class="list-group">
+          <!-- Dynamically filled with active checklist cards -->
+          <div style="color: var(--text-muted); text-align: center; margin-top: 20px;">Đang tải danh sách...</div>
+        </div>
+        
+        <!-- Templates List Panel (Hidden by default) -->
+        <div id="panel-templates" class="list-group" style="display: none;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+            <button class="btn-secondary" id="btn-open-create-template" style="padding: 6px 12px; font-size: 0.8rem; width: 100%;">
+              + Tạo Mẫu Checklist Mới
+            </button>
+          </div>
+          <div id="templates-list-inner">
+            <!-- Dynamically filled with templates cards -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace (Center) -->
+    <main class="main-workspace" id="main-workspace">
+      <!-- Empty state when no job is selected -->
+      <div class="workspace-empty-state" id="workspace-empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+          <rect x="9" y="3" width="6" height="4" rx="1" ry="1"></rect>
+          <path d="m9 14 2 2 4-4"></path>
+        </svg>
+        <h3>Chưa Chọn Công Việc</h3>
+        <p>Vui lòng chọn một công việc đang chạy từ menu bên trái hoặc bắt đầu một công việc mới từ mẫu checklist.</p>
+      </div>
+
+      <!-- Active Job Workspace Detail (Visible when job selected) -->
+      <div id="workspace-job-detail" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+        <!-- Workspace Header -->
+        <div class="workspace-header">
+          <div class="workspace-title-section">
+            <div class="workspace-title-row">
+              <h1 class="workspace-title" id="job-title-display">Triển khai Server Production</h1>
+              <span class="badge" id="job-status-badge">Đang chạy</span>
+            </div>
+            <div class="workspace-meta">
+              <span id="job-creator-display">Người tạo: A</span>
+              <span id="job-time-display">Tạo lúc: 10:30 - 22/06</span>
+              <span id="sync-status" class="text-success">● Đồng bộ trực tuyến</span>
+            </div>
+          </div>
+          
+          <div class="workspace-actions">
+            <button class="btn-danger" id="btn-delete-job" title="Xóa vĩnh viễn công việc này">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              Xóa Việc
+            </button>
+          </div>
+        </div>
+
+        <!-- Master Progress Bar -->
+        <div class="workspace-progress-section">
+          <div class="progress-stats">
+            <span>Tiến độ hoàn thành</span>
+            <span id="job-progress-percent">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="job-progress-bar"></div>
+          </div>
+        </div>
+
+        <!-- Steps Checklist Container -->
+        <div class="workspace-steps-container">
+          <div class="steps-list" id="job-steps-list">
+            <!-- Dynamically populated step cards -->
+          </div>
+          
+          <!-- Add step section -->
+          <div style="max-width: 800px; margin: 20px auto 0;" id="add-custom-step-section">
+            <button class="btn-secondary" id="btn-show-add-step" style="width: 100%; border-style: dashed; padding: 12px;">+ Thêm Bước Mới Cho Checklist Này</button>
+            <form id="form-add-custom-step" style="display: none; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 20px; margin-top: 16px; gap: 12px; flex-direction: column;">
+              <h4 style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">Thêm Bước Mới</h4>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="custom-step-title">Tên bước thực hiện:</label>
+                <input type="text" id="custom-step-title" placeholder="Ví dụ: Cấu hình cronjob tự động..." required>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label for="custom-step-desc">Mô tả ngắn gọn:</label>
+                <input type="text" id="custom-step-desc" placeholder="Ghi chú thêm thông tin chi tiết (Không bắt buộc)...">
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" id="btn-cancel-add-step" style="padding: 6px 12px; font-size: 0.8rem;">Hủy</button>
+                <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Lưu Bước</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Activity & Troubleshoot Log Panel (Right Sidebar) -->
+    <aside class="timeline-panel" id="timeline-panel" style="display: none;">
+      <div class="timeline-header">
+        <h2>Nhật Ký Xử Lý Sự Cố</h2>
+        <span class="text-muted" style="font-size: 0.75rem;">Thời gian thực</span>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-list" id="job-timeline-list">
+          <!-- Dynamically populated timeline nodes -->
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- MODAL: Start New Job from Template -->
+  <div class="modal-overlay" id="modal-start-job">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Bắt Đầu Công Việc Mới</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-start-job">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="start-job-template-select">Chọn Mẫu Checklist:</label>
+            <select id="start-job-template-select" required>
+              <!-- Options loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="start-job-title">Tên Công Việc:</label>
+            <input type="text" id="start-job-title" placeholder="Để trống để lấy tên của mẫu...">
+          </div>
+          <div class="form-group">
+            <label for="start-job-desc">Mô Tả Chi Tiết (Không bắt buộc):</label>
+            <textarea id="start-job-desc" rows="3" placeholder="Nhập thêm mô tả hoặc ghi chú đặc biệt cho đợt chạy này..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
+          <button type="submit" class="btn-primary">Khởi Chạy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Create New Checklist Template -->
+  <div class="modal-overlay" id="modal-create-template">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Tạo Mẫu Checklist Mới</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-create-template">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="template-title">Tên Mẫu Checklist:</label>
+            <input type="text" id="template-title" required placeholder="Ví dụ: Triển khai Website Mới">
+          </div>
+          <div class="form-group">
+            <label for="template-desc">Mô tả quy trình:</label>
+            <textarea id="template-desc" rows="2" placeholder="Tóm tắt mục đích của quy trình này..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Các bước thực hiện:</span>
+              <button type="button" class="btn-secondary" id="btn-add-template-step" style="padding: 4px 10px; font-size: 0.75rem;">
+                + Thêm Bước
+              </button>
+            </label>
+            
+            <div id="template-steps-inputs-container" style="margin-top: 10px;">
+              <!-- Dynamic step rows -->
+              <div class="template-step-row">
+                <div class="template-step-inputs">
+                  <input type="text" class="template-step-title-input" required placeholder="Tên bước (Ví dụ: Kiểm tra kết nối database)">
+                  <input type="text" class="template-step-desc-input" placeholder="Mô tả chi tiết bước thực hiện (Không bắt buộc)">
+                </div>
+                <button type="button" class="btn-delete-row">&times;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
+          <button type="submit" class="btn-primary">Tạo Mẫu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Log/Report Error on Step -->
+  <div class="modal-overlay" id="modal-report-error">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="text-error">Báo Lỗi Bước Thực Hiện</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-report-error">
+        <!-- Hidden input to track job and step -->
+        <input type="hidden" id="report-error-job-id">
+        <input type="hidden" id="report-error-step-id">
+        
+        <div class="modal-body">
+          <div style="margin-bottom: 16px;">
+            <p>Bạn đang báo cáo sự cố tại bước: <strong id="report-error-step-title" style="color: var(--text-primary);">Tên bước</strong></p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Thông tin lỗi sẽ được gắn vào bước này để đồng nghiệp có thể cùng rà soát lỗi và khắc phục.</p>
+          </div>
+          <div class="form-group">
+            <label for="report-error-message">Mô Tả Lỗi / Triệu Chứng Sự Cố:</label>
+            <textarea id="report-error-message" rows="4" required placeholder="Mô tả cụ thể lỗi gặp phải (Ví dụ: Server trả về lỗi 502 Bad Gateway; Database log thông báo: Too many connections...)"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
+          <button type="submit" class="btn-primary" style="background: var(--error);">Gửi Báo Lỗi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -69,11 +69,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupUsername();
   setupEventListeners();
   
+  showLoading('Đang tải dữ liệu...');
   // Load templates & jobs from REST API
   await Promise.all([
     fetchTemplates(),
     fetchJobs()
   ]);
+  hideLoading();
   
   renderJobsList();
   renderTemplatesList();
@@ -259,6 +261,7 @@ function setupEventListeners() {
     const title = document.getElementById('start-job-title').value.trim();
     const description = document.getElementById('start-job-desc').value.trim();
     
+    showLoading('Đang khởi tạo checklist...');
     try {
       const response = await fetch('/api/jobs', {
         method: 'POST',
@@ -281,6 +284,8 @@ function setupEventListeners() {
       }
     } catch(err) {
       console.error(err);
+    } finally {
+      hideLoading();
     }
   });
   
@@ -298,6 +303,7 @@ function setupEventListeners() {
       };
     });
     
+    showLoading('Đang lưu mẫu checklist...');
     try {
       const response = await fetch('/api/templates', {
         method: 'POST',
@@ -324,6 +330,8 @@ function setupEventListeners() {
       }
     } catch(err) {
       console.error(err);
+    } finally {
+      hideLoading();
     }
   });
   
@@ -334,6 +342,7 @@ function setupEventListeners() {
     const stepId = document.getElementById('report-error-step-id').value;
     const errorMsg = document.getElementById('report-error-message').value.trim();
     
+    showLoading('Đang báo cáo sự cố...');
     try {
       const response = await fetch(`/api/jobs/${jobId}/steps/${stepId}`, {
         method: 'PATCH',
@@ -353,6 +362,8 @@ function setupEventListeners() {
       }
     } catch(err) {
       console.error(err);
+    } finally {
+      hideLoading();
     }
   });
   
@@ -360,11 +371,14 @@ function setupEventListeners() {
   elements.btnDeleteJob.addEventListener('click', async () => {
     if (!state.selectedJobId) return;
     if (confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công việc này không? Nhật ký rà soát lỗi cũng sẽ bị xóa.')) {
+      showLoading('Đang xóa công việc...');
       try {
         const response = await fetch(`/api/jobs/${state.selectedJobId}`, { method: 'DELETE' });
         if (!response.ok) alert('Xóa công việc thất bại');
       } catch(err) {
         console.error(err);
+      } finally {
+        hideLoading();
       }
     }
   });
@@ -394,6 +408,7 @@ function setupEventListeners() {
       const title = document.getElementById('custom-step-title').value.trim();
       const description = document.getElementById('custom-step-desc').value.trim();
       
+      showLoading('Đang thêm bước mới...');
       try {
         const response = await fetch(`/api/jobs/${state.selectedJobId}/steps`, {
           method: 'POST',
@@ -414,7 +429,25 @@ function setupEventListeners() {
         }
       } catch(err) {
         console.error(err);
+      } finally {
+        hideLoading();
       }
+    });
+  }
+
+  // Open Export Minutes Modal
+  const btnOpenExportMinutes = document.getElementById('btn-open-export-minutes');
+  if (btnOpenExportMinutes) {
+    btnOpenExportMinutes.addEventListener('click', () => {
+      openExportMinutesModal();
+    });
+  }
+  
+  // Form Submit: Export Minutes
+  const formExportMinutes = document.getElementById('form-export-minutes');
+  if (formExportMinutes) {
+    formExportMinutes.addEventListener('submit', (e) => {
+      exportMinutesToPDF(e);
     });
   }
 }
@@ -567,11 +600,14 @@ function renderTemplatesList() {
     card.querySelector('.btn-delete-template').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm(`Bạn có muốn xóa mẫu "${t.title}" không?`)) {
+        showLoading('Đang xóa mẫu...');
         try {
           const res = await fetch(`/api/templates/${t.id}`, { method: 'DELETE' });
           if (!res.ok) alert('Xóa mẫu thất bại!');
         } catch(err) {
           console.error(err);
+        } finally {
+          hideLoading();
         }
       }
     });
@@ -762,6 +798,7 @@ function renderSteps(job) {
     stepCard.querySelector('.btn-delete-step').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm(`Bạn có muốn xóa bước "${step.title}" khỏi checklist này không?`)) {
+        showLoading('Đang xóa bước...');
         try {
           const res = await fetch(`/api/jobs/${job.id}/steps/${step.id}?username=${encodeURIComponent(state.currentUsername)}`, {
             method: 'DELETE'
@@ -771,6 +808,8 @@ function renderSteps(job) {
           }
         } catch(err) {
           console.error(err);
+        } finally {
+          hideLoading();
         }
       }
     });
@@ -810,6 +849,7 @@ function renderSteps(job) {
       const msg = input.value.trim();
       if (!msg) return;
       
+      showLoading('Đang gửi ghi chú...');
       try {
         const res = await fetch(`/api/jobs/${job.id}/steps/${step.id}/logs`, {
           method: 'POST',
@@ -827,6 +867,8 @@ function renderSteps(job) {
         }
       } catch(err) {
         console.error(err);
+      } finally {
+        hideLoading();
       }
     });
     
@@ -836,6 +878,7 @@ function renderSteps(job) {
 
 // Update Step Status REST API
 async function updateStep(jobId, stepId, status) {
+  showLoading('Đang cập nhật...');
   try {
     const res = await fetch(`/api/jobs/${jobId}/steps/${stepId}`, {
       method: 'PATCH',
@@ -850,6 +893,8 @@ async function updateStep(jobId, stepId, status) {
     }
   } catch(err) {
     console.error(err);
+  } finally {
+    hideLoading();
   }
 }
 
@@ -890,4 +935,183 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// Helper: Show global loading indicator
+function showLoading(text = 'Đang xử lý...') {
+  const overlay = document.getElementById('loading-overlay');
+  const textEl = overlay.querySelector('.loading-text');
+  if (textEl) textEl.innerText = text;
+  overlay.classList.add('active');
+}
+
+// Helper: Hide global loading indicator
+function hideLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  overlay.classList.remove('active');
+}
+
+function openExportMinutesModal() {
+  const modal = document.getElementById('modal-export-minutes');
+  
+  // Set Side A default fields
+  document.getElementById('minutes-a-rep').value = state.currentUsername || 'Chúng Đức Quang';
+  document.getElementById('minutes-a-role').value = 'Nhân viên tư vấn, lắp đặt hệ thống';
+  
+  // Get today's completed jobs
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  
+  const todayCompletedJobs = state.jobs.filter(job => {
+    if (job.status !== 'completed') return false;
+    const completedDate = new Date(job.updatedAt);
+    return completedDate >= startOfToday;
+  });
+  
+  // Populate jobs text
+  const jobsTextarea = document.getElementById('minutes-jobs-text');
+  
+  // Check if there is a selected job right now and it is completed, preselect it or add its completed steps
+  if (state.selectedJobId) {
+    const activeJob = state.jobs.find(j => j.id === state.selectedJobId);
+    if (activeJob && activeJob.status === 'completed') {
+      const compSteps = activeJob.steps.filter(s => s.status === 'completed').map(s => s.title);
+      if (compSteps.length > 0) {
+        jobsTextarea.value = compSteps.join('\n');
+      } else {
+        jobsTextarea.value = activeJob.title;
+      }
+    } else {
+      if (todayCompletedJobs.length > 0) {
+        jobsTextarea.value = todayCompletedJobs.map(job => job.title).join('\n');
+      } else {
+        jobsTextarea.value = activeJob ? activeJob.title : '';
+      }
+    }
+  } else {
+    if (todayCompletedJobs.length > 0) {
+      jobsTextarea.value = todayCompletedJobs.map(job => job.title).join('\n');
+    } else {
+      jobsTextarea.value = 'Chưa có công việc nào hoàn thành hôm nay.\n(Nhập thủ công công việc tại đây...)';
+    }
+  }
+  
+  // Pre-populate Side B fields from localStorage
+  document.getElementById('minutes-b-name').value = localStorage.getItem('minutes_b_name') || 'Ủy ban nhân dân phường Bình Dương';
+  document.getElementById('minutes-b-address').value = localStorage.getItem('minutes_b_address') || '';
+  document.getElementById('minutes-b-rep').value = localStorage.getItem('minutes_b_rep') || '';
+  document.getElementById('minutes-b-role').value = localStorage.getItem('minutes_b_role') || '';
+  document.getElementById('minutes-b-phone').value = localStorage.getItem('minutes_b_phone') || '';
+  document.getElementById('minutes-b-feedback').value = '';
+  
+  // Pre-populate Time & Date
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('minutes-end-time').value = `${hours}:${minutes}`;
+  
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  document.getElementById('minutes-end-date').value = `${yyyy}-${mm}-${dd}`;
+  
+  openModal(modal);
+}
+
+async function exportMinutesToPDF(e) {
+  e.preventDefault();
+  
+  // Read form values
+  const aRep = document.getElementById('minutes-a-rep').value.trim();
+  const aRole = document.getElementById('minutes-a-role').value.trim();
+  
+  const bName = document.getElementById('minutes-b-name').value.trim();
+  const bAddress = document.getElementById('minutes-b-address').value.trim();
+  const bRep = document.getElementById('minutes-b-rep').value.trim();
+  const bRole = document.getElementById('minutes-b-role').value.trim();
+  const bPhone = document.getElementById('minutes-b-phone').value.trim();
+  
+  const jobsText = document.getElementById('minutes-jobs-text').value.trim();
+  const feedback = document.getElementById('minutes-b-feedback').value.trim();
+  const endTime = document.getElementById('minutes-end-time').value;
+  const endDateStr = document.getElementById('minutes-end-date').value;
+  
+  // Save Side B details to localStorage for future convenience
+  localStorage.setItem('minutes_b_name', bName);
+  localStorage.setItem('minutes_b_address', bAddress);
+  localStorage.setItem('minutes_b_rep', bRep);
+  localStorage.setItem('minutes_b_role', bRole);
+  localStorage.setItem('minutes_b_phone', bPhone);
+  
+  // Parse date
+  const dateObj = new Date(endDateStr);
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  
+  // Parse time
+  const [endHour, endMinute] = endTime.split(':');
+  
+  // Populate print template elements
+  document.getElementById('p-date-day').innerText = day;
+  document.getElementById('p-date-month').innerText = month;
+  document.getElementById('p-date-year').innerText = year;
+  
+  document.getElementById('p-a-rep').innerText = aRep || '................................................................';
+  document.getElementById('p-a-role').innerText = aRole || '................................................................';
+  
+  document.getElementById('p-b-name').innerText = bName || '................................................................';
+  document.getElementById('p-b-address').innerText = bAddress || '................................................................';
+  document.getElementById('p-b-phone').innerText = bPhone || '................................................................';
+  document.getElementById('p-b-rep').innerText = bRep || '................................................................';
+  document.getElementById('p-b-role').innerText = bRole || '................................................................';
+  
+  // Parse jobsText into list items
+  const jobsListEl = document.getElementById('p-jobs-list');
+  jobsListEl.innerHTML = '';
+  const jobsLines = jobsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  jobsLines.forEach(line => {
+    const li = document.createElement('li');
+    li.innerText = line;
+    jobsListEl.appendChild(li);
+  });
+  
+  // Feedback
+  const feedbackEl = document.getElementById('p-b-feedback');
+  if (feedback) {
+    feedbackEl.innerText = feedback;
+  } else {
+    feedbackEl.innerHTML = `<div class="comments-line"></div>` +
+                           `<div class="comments-line"></div>` +
+                           `<div class="comments-line"></div>` +
+                           `<div class="comments-line"></div>`;
+  }
+  
+  document.getElementById('p-end-hour').innerText = endHour;
+  document.getElementById('p-end-minute').innerText = endMinute;
+  document.getElementById('p-end-day').innerText = day;
+  document.getElementById('p-end-month').innerText = month;
+  document.getElementById('p-end-year').innerText = year;
+  
+  // Export PDF using html2pdf.js
+  const printElement = document.getElementById('print-minutes-template');
+  const opt = {
+    margin:       0,
+    filename:     `Bien_ban_lam_viec_${day}_${month}_${year}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  showLoading('Đang tạo và tải file PDF...');
+  try {
+    // Generate and download
+    await html2pdf().from(printElement).set(opt).save();
+    closeAllModals();
+  } catch(err) {
+    console.error('Error generating PDF:', err);
+    alert('Có lỗi xảy ra khi xuất file PDF: ' + err.toString());
+  } finally {
+    hideLoading();
+  }
 }

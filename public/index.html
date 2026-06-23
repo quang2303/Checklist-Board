@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bảng Checklist Công Việc & Xử Lý Sự Cố</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
+
 <body data-theme="dark">
 
   <!-- Header -->
@@ -14,50 +17,81 @@
       <div class="logo-icon">✓</div>
       <div class="logo-text">Checklist Job Board</div>
     </div>
-    
+
     <div class="user-profile-actions">
       <!-- Teammate Name Setup -->
       <div class="username-input-wrapper">
         <label for="current-username">Đồng nghiệp:</label>
         <input type="text" id="current-username" value="Đồng nghiệp 1" placeholder="Nhập tên của bạn...">
       </div>
-      
+
       <!-- Theme Switcher -->
       <button class="theme-toggle" id="theme-toggle" title="Đổi giao diện">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun" id="theme-sun-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="feather feather-sun" id="theme-sun-icon">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
       </button>
     </div>
   </header>
 
   <!-- App Main Layout Container -->
   <div class="app-container">
-  
+
     <!-- Left Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <h2>Bảng Điều Khiển</h2>
-        <button class="btn-primary" id="btn-open-start-job" title="Chạy một checklist mới">
-          <span>+ Việc Mới</span>
-        </button>
+      <div class="sidebar-header" style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <h2>Bảng Điều Khiển</h2>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%;">
+          <button class="btn-primary" id="btn-open-start-job" title="Chạy một checklist mới"
+            style="flex: 1; justify-content: center; padding: 10px 12px;">
+            <span>+ Việc Mới</span>
+          </button>
+          <button class="btn-secondary" id="btn-open-export-minutes" title="Xuất biên bản làm việc hôm nay"
+            style="flex: 1; justify-content: center; padding: 10px 12px; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="feather feather-file-text">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Biên Bản</span>
+          </button>
+        </div>
       </div>
-      
+
       <!-- Tab Control (Jobs vs Templates) -->
       <div class="tabs-container">
         <button class="tab-btn active" id="tab-jobs">Công Việc</button>
         <button class="tab-btn" id="tab-templates">Mẫu Checklist</button>
       </div>
-      
+
       <div class="sidebar-content">
         <!-- Active Jobs Panel -->
         <div id="panel-jobs" class="list-group">
           <!-- Dynamically filled with active checklist cards -->
           <div style="color: var(--text-muted); text-align: center; margin-top: 20px;">Đang tải danh sách...</div>
         </div>
-        
+
         <!-- Templates List Panel (Hidden by default) -->
         <div id="panel-templates" class="list-group" style="display: none;">
           <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
-            <button class="btn-secondary" id="btn-open-create-template" style="padding: 6px 12px; font-size: 0.8rem; width: 100%;">
+            <button class="btn-secondary" id="btn-open-create-template"
+              style="padding: 6px 12px; font-size: 0.8rem; width: 100%;">
               + Tạo Mẫu Checklist Mới
             </button>
           </div>
@@ -72,7 +106,8 @@
     <main class="main-workspace" id="main-workspace">
       <!-- Empty state when no job is selected -->
       <div class="workspace-empty-state" id="workspace-empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round">
           <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
           <rect x="9" y="3" width="6" height="4" rx="1" ry="1"></rect>
           <path d="m9 14 2 2 4-4"></path>
@@ -96,10 +131,16 @@
               <span id="sync-status" class="text-success">● Đồng bộ trực tuyến</span>
             </div>
           </div>
-          
+
           <div class="workspace-actions">
             <button class="btn-danger" id="btn-delete-job" title="Xóa vĩnh viễn công việc này">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
               Xóa Việc
             </button>
           </div>
@@ -121,23 +162,30 @@
           <div class="steps-list" id="job-steps-list">
             <!-- Dynamically populated step cards -->
           </div>
-          
+
           <!-- Add step section -->
           <div style="max-width: 800px; margin: 20px auto 0;" id="add-custom-step-section">
-            <button class="btn-secondary" id="btn-show-add-step" style="width: 100%; border-style: dashed; padding: 12px;">+ Thêm Bước Mới Cho Checklist Này</button>
-            <form id="form-add-custom-step" style="display: none; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 20px; margin-top: 16px; gap: 12px; flex-direction: column;">
-              <h4 style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">Thêm Bước Mới</h4>
+            <button class="btn-secondary" id="btn-show-add-step"
+              style="width: 100%; border-style: dashed; padding: 12px;">+ Thêm Bước Mới Cho Checklist Này</button>
+            <form id="form-add-custom-step"
+              style="display: none; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 20px; margin-top: 16px; gap: 12px; flex-direction: column;">
+              <h4
+                style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">
+                Thêm Bước Mới</h4>
               <div class="form-group" style="margin-bottom: 8px;">
                 <label for="custom-step-title">Tên bước thực hiện:</label>
                 <input type="text" id="custom-step-title" placeholder="Ví dụ: Cấu hình cronjob tự động..." required>
               </div>
               <div class="form-group" style="margin-bottom: 12px;">
                 <label for="custom-step-desc">Mô tả ngắn gọn:</label>
-                <input type="text" id="custom-step-desc" placeholder="Ghi chú thêm thông tin chi tiết (Không bắt buộc)...">
+                <input type="text" id="custom-step-desc"
+                  placeholder="Ghi chú thêm thông tin chi tiết (Không bắt buộc)...">
               </div>
               <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                <button type="button" class="btn-secondary" id="btn-cancel-add-step" style="padding: 6px 12px; font-size: 0.8rem;">Hủy</button>
-                <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Lưu Bước</button>
+                <button type="button" class="btn-secondary" id="btn-cancel-add-step"
+                  style="padding: 6px 12px; font-size: 0.8rem;">Hủy</button>
+                <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Lưu
+                  Bước</button>
               </div>
             </form>
           </div>
@@ -181,7 +229,8 @@
           </div>
           <div class="form-group">
             <label for="start-job-desc">Mô Tả Chi Tiết (Không bắt buộc):</label>
-            <textarea id="start-job-desc" rows="3" placeholder="Nhập thêm mô tả hoặc ghi chú đặc biệt cho đợt chạy này..."></textarea>
+            <textarea id="start-job-desc" rows="3"
+              placeholder="Nhập thêm mô tả hoặc ghi chú đặc biệt cho đợt chạy này..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -209,21 +258,24 @@
             <label for="template-desc">Mô tả quy trình:</label>
             <textarea id="template-desc" rows="2" placeholder="Tóm tắt mục đích của quy trình này..."></textarea>
           </div>
-          
+
           <div class="form-group">
             <label style="display: flex; justify-content: space-between; align-items: center;">
               <span>Các bước thực hiện:</span>
-              <button type="button" class="btn-secondary" id="btn-add-template-step" style="padding: 4px 10px; font-size: 0.75rem;">
+              <button type="button" class="btn-secondary" id="btn-add-template-step"
+                style="padding: 4px 10px; font-size: 0.75rem;">
                 + Thêm Bước
               </button>
             </label>
-            
+
             <div id="template-steps-inputs-container" style="margin-top: 10px;">
               <!-- Dynamic step rows -->
               <div class="template-step-row">
                 <div class="template-step-inputs">
-                  <input type="text" class="template-step-title-input" required placeholder="Tên bước (Ví dụ: Kiểm tra kết nối database)">
-                  <input type="text" class="template-step-desc-input" placeholder="Mô tả chi tiết bước thực hiện (Không bắt buộc)">
+                  <input type="text" class="template-step-title-input" required
+                    placeholder="Tên bước (Ví dụ: Kiểm tra kết nối database)">
+                  <input type="text" class="template-step-desc-input"
+                    placeholder="Mô tả chi tiết bước thực hiện (Không bắt buộc)">
                 </div>
                 <button type="button" class="btn-delete-row">&times;</button>
               </div>
@@ -249,15 +301,18 @@
         <!-- Hidden input to track job and step -->
         <input type="hidden" id="report-error-job-id">
         <input type="hidden" id="report-error-step-id">
-        
+
         <div class="modal-body">
           <div style="margin-bottom: 16px;">
-            <p>Bạn đang báo cáo sự cố tại bước: <strong id="report-error-step-title" style="color: var(--text-primary);">Tên bước</strong></p>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Thông tin lỗi sẽ được gắn vào bước này để đồng nghiệp có thể cùng rà soát lỗi và khắc phục.</p>
+            <p>Bạn đang báo cáo sự cố tại bước: <strong id="report-error-step-title"
+                style="color: var(--text-primary);">Tên bước</strong></p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Thông tin lỗi sẽ được gắn vào
+              bước này để đồng nghiệp có thể cùng rà soát lỗi và khắc phục.</p>
           </div>
           <div class="form-group">
             <label for="report-error-message">Mô Tả Lỗi / Triệu Chứng Sự Cố:</label>
-            <textarea id="report-error-message" rows="4" required placeholder="Mô tả cụ thể lỗi gặp phải (Ví dụ: Server trả về lỗi 502 Bad Gateway; Database log thông báo: Too many connections...)"></textarea>
+            <textarea id="report-error-message" rows="4" required
+              placeholder="Mô tả cụ thể lỗi gặp phải (Ví dụ: Server trả về lỗi 502 Bad Gateway; Database log thông báo: Too many connections...)"></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -269,5 +324,258 @@
   </div>
 
   <script src="js/app.js"></script>
+  <!-- MODAL: Export Work Minutes -->
+  <div class="modal-overlay" id="modal-export-minutes">
+    <div class="modal-content" style="max-width: 700px; width: 90%;">
+      <div class="modal-header">
+        <h3>Lập Biên Bản Làm Việc Hôm Nay</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-export-minutes">
+        <div class="modal-body"
+          style="max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+
+          <!-- Bên A (LBM) -->
+          <div
+            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
+            <h4
+              style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
+              Đại diện Bên A (LBM)</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-a-rep">Họ và tên đại diện:</label>
+                <input type="text" id="minutes-a-rep" class="form-control"
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-a-role">Chức vụ:</label>
+                <input type="text" id="minutes-a-role" class="form-control"
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Bên B (Khách hàng) -->
+          <div
+            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
+            <h4
+              style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
+              Đại diện Bên B (Khách hàng)</h4>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="minutes-b-name">Cơ quan / Đơn vị:</label>
+              <input type="text" id="minutes-b-name" placeholder="Ví dụ: Ủy ban nhân dân phường Bình Dương" required
+                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="minutes-b-address">Địa chỉ:</label>
+              <input type="text" id="minutes-b-address" placeholder="Nhập địa chỉ của cơ quan..."
+                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-b-rep">Họ và tên đại diện:</label>
+                <input type="text" id="minutes-b-rep" placeholder="Tên người đại diện..."
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-b-role">Chức vụ:</label>
+                <input type="text" id="minutes-b-role" placeholder="Chức vụ..."
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="minutes-b-phone">Điện thoại:</label>
+              <input type="text" id="minutes-b-phone" placeholder="Nhập số điện thoại liên hệ..."
+                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <!-- Nội dung công việc -->
+          <div
+            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
+            <h4
+              style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
+              Nội dung công việc đã thực hiện</h4>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Dưới đây là các công việc hoàn
+              thành trong hôm nay. Bạn có thể chỉnh sửa hoặc thêm dòng mới.</p>
+            <div class="form-group" style="margin-bottom: 0;">
+              <textarea id="minutes-jobs-text" rows="5" placeholder="Mỗi dòng là một công việc đã thực hiện..." required
+                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+          </div>
+
+          <!-- Ý kiến kiến nghị & Thời gian kết thúc -->
+          <div
+            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
+            <h4
+              style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
+              Thông tin bổ sung & Kết thúc</h4>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="minutes-b-feedback">Ý kiến/Kiến nghị khác của Bên B (nếu có):</label>
+              <textarea id="minutes-b-feedback" rows="2" placeholder="Nhập ý kiến, phản hồi hoặc kiến nghị..."
+                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-end-time">Thời gian kết thúc (Giờ/Phút):</label>
+                <input type="time" id="minutes-end-time" required
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="minutes-end-date">Ngày lập biên bản:</label>
+                <input type="date" id="minutes-end-date" required
+                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
+          <button type="submit" class="btn-primary">Tạo & Tải PDF</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- A4 PRINT TEMPLATE CONTAINER (Hidden from viewport) -->
+  <div style="position: absolute; left: -9999px; top: -9999px;">
+    <div id="print-minutes-template">
+      <div class="paper-header">
+        <div class="header-top-row">
+          <img class="logo-lbm"
+            src="data:image/png;base64,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"
+            alt="LBM Logo">
+          <div class="company-title">CÔNG TY CP ĐẦU TƯ LBM</div>
+          <img class="logo-canon"
+            src="data:image/jpeg;base64,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"
+            alt="Canon Logo">
+        </div>
+        <div class="header-bottom-info">
+          <div style="margin-bottom: 2px;">Add: Tầng 14, Tòa nhà HM Town, Số 412 Nguyễn Thị Minh Khai, Phường Bàn Cờ, TP
+            Hồ Chí Minh, Việt Nam</div>
+          <div>Tel: (028) 3838 6666 / Fax: 024.37478150 &nbsp; Website: www.lbm.vn</div>
+        </div>
+      </div>
+
+      <div class="doc-title-container">
+        <div class="doc-title">BIÊN BẢN LÀM VIỆC</div>
+        <div class="doc-subtitle">
+          Hôm nay, ngày <span id="p-date-day">...</span> tháng <span id="p-date-month">...</span> năm <span
+            id="p-date-year">...</span>, hai bên gồm có:
+        </div>
+      </div>
+
+      <div class="party-a-block">
+        <div class="party-title">BÊN A : CÔNG TY CỔ PHẦN ĐẦU TƯ LBM</div>
+        <div class="doc-row">
+          <div class="doc-label">Địa chỉ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">Tầng 14, Tòa nhà HM Town, Số 412 Nguyễn Thị Minh Khai, Phường Bàn Cờ, TP Hồ Chí Minh,
+            Việt Nam</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Điện thoại</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">
+            <div class="doc-input-inline-group">
+              <div class="doc-input-inline-item" style="flex: 2;">
+                (028) 3838 6666
+              </div>
+              <div class="doc-input-inline-item" style="flex: 3;">
+                <span class="doc-label-inline">Fax:</span>
+                (028) 3837 6666
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Mã số thuế</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">0308783233</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Đại diện</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" style="font-weight: bold;" id="p-a-rep">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Chức vụ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-a-role">...</div>
+        </div>
+      </div>
+
+      <div class="party-b-block">
+        <div class="party-title">
+          BÊN B : <span id="p-b-name" style="font-weight: bold;">...</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Địa chỉ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-b-address">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Điện thoại</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-b-phone">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Đại diện</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" style="font-weight: bold;" id="p-b-rep">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Chức vụ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-b-role">...</div>
+        </div>
+      </div>
+
+      <div class="section-title">Nội dung công việc đã thực hiện:</div>
+      <ol class="work-list" id="p-jobs-list">
+        <!-- populated from javascript -->
+      </ol>
+
+      <div style="margin-bottom: 0px;" class="section-title">* Ý kiến/Kiến nghị khác của Bên B (nếu có):</div>
+      <div class="comments-display" id="p-b-feedback">
+        ...
+      </div>
+
+      <div class="footer-bullets" style="margin-top: 20px;">
+        <div class="bullet-row">
+          * Biên bản kết thúc vào hồi
+          <span id="p-end-hour">...</span> giờ
+          <span id="p-end-minute">...</span> ngày
+          <span id="p-end-day">...</span> tháng
+          <span id="p-end-month">...</span> năm
+          <span id="p-end-year">...</span>
+        </div>
+        <div class="bullet-row">* Nội dung làm việc được các thành viên thông qua và ký vào biên bản.</div>
+        <div class="bullet-row">* Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý ngang nhau.
+        </div>
+      </div>
+
+      <div class="signatures-container">
+        <div class="signature-box">
+          <div class="sig-title">ĐẠI DIỆN BÊN A</div>
+          <div class="sig-subtitle">(Ký và ghi rõ họ tên)</div>
+          <div style="height: 100px;"></div>
+        </div>
+        <div class="signature-box">
+          <div class="sig-title">ĐẠI DIỆN BÊN B</div>
+          <div class="sig-subtitle">(Ký và ghi rõ họ tên)</div>
+          <div style="height: 100px;"></div>
+        </div>
+      </div>
+    </div>
+  <!-- GLOBAL LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner-wrapper">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Đang xử lý...</div>
+    </div>
+  </div>
 </body>
+
 </html>

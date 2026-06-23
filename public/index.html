@@ -269,22 +269,54 @@
             </label>
 
             <div id="template-steps-inputs-container" style="margin-top: 10px;">
-              <!-- Dynamic step rows -->
-              <div class="template-step-row">
-                <div class="template-step-inputs">
-                  <input type="text" class="template-step-title-input" required
-                    placeholder="Tên bước (Ví dụ: Kiểm tra kết nối database)">
-                  <input type="text" class="template-step-desc-input"
-                    placeholder="Mô tả chi tiết bước thực hiện (Không bắt buộc)">
-                </div>
-                <button type="button" class="btn-delete-row">&times;</button>
-              </div>
+              <!-- Dynamic step rows will be populated from JS -->
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
           <button type="submit" class="btn-primary">Tạo Mẫu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Edit Checklist Template -->
+  <div class="modal-overlay" id="modal-edit-template">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Sửa Mẫu Checklist</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-edit-template">
+        <input type="hidden" id="edit-template-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit-template-title">Tên Mẫu Checklist:</label>
+            <input type="text" id="edit-template-title" required placeholder="Ví dụ: Triển khai Website Mới">
+          </div>
+          <div class="form-group">
+            <label for="edit-template-desc">Mô tả quy trình:</label>
+            <textarea id="edit-template-desc" rows="2" placeholder="Tóm tắt mục đích của quy trình này..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Các bước thực hiện:</span>
+              <button type="button" class="btn-secondary" id="btn-add-edit-template-step"
+                style="padding: 4px 10px; font-size: 0.75rem;">
+                + Thêm Bước
+              </button>
+            </label>
+
+            <div id="edit-template-steps-inputs-container" style="margin-top: 10px;">
+              <!-- Dynamic step rows will be populated from JS -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel-btn">Hủy</button>
+          <button type="submit" class="btn-primary">Lưu Thay Đổi</button>
         </div>
       </form>
     </div>

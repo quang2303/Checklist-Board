@@ -336,6 +336,36 @@ app.delete('/api/templates/:id', async (req, res) => {
   }
 });
 
+// PUT template
+app.put('/api/templates/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, steps } = req.body;
+  if (!title || !steps || !Array.isArray(steps)) {
+    return res.status(400).json({ error: "Missing title or steps array" });
+  }
+  
+  try {
+    const template = await Template.findOne({ id });
+    if (!template) {
+      return res.status(404).json({ error: "Template not found" });
+    }
+    
+    template.title = title;
+    template.description = description || "";
+    template.steps = steps.map((s, idx) => ({
+      id: s.id || `step-${idx + 1}-${Date.now()}`,
+      title: s.title,
+      description: s.description || ""
+    }));
+    
+    await template.save();
+    notifyClients('TEMPLATE_UPDATED', template);
+    res.json(template);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET jobs
 app.get('/api/jobs', async (req, res) => {
   try {

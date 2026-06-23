@@ -175,6 +175,17 @@ function setupSSE() {
           renderTemplatesList();
           updateTemplateDropdowns();
           break;
+          
+        case 'TEMPLATE_UPDATED':
+          const tIdx = state.templates.findIndex(t => t.id === payload.id);
+          if (tIdx !== -1) {
+            state.templates[tIdx] = payload;
+          } else {
+            state.templates.push(payload);
+          }
+          renderTemplatesList();
+          updateTemplateDropdowns();
+          break;
       }
     } catch(err) {
       console.error('Error handling SSE message', err);
@@ -227,6 +238,8 @@ function setupEventListeners() {
     openModal(elements.modalStartJob);
   });
   elements.btnOpenCreateTemplate.addEventListener('click', () => {
+    elements.templateStepsInputsContainer.innerHTML = '';
+    addTemplateStepInputRow();
     openModal(elements.modalCreateTemplate);
   });
   
@@ -248,9 +261,68 @@ function setupEventListeners() {
       const rows = elements.templateStepsInputsContainer.querySelectorAll('.template-step-row');
       if (rows.length > 1) {
         e.target.closest('.template-step-row').remove();
+        updateStepNumbers(elements.templateStepsInputsContainer);
       } else {
         alert('Phải có ít nhất một bước thực hiện!');
       }
+    }
+  });
+
+  // Edit template step actions
+  document.getElementById('btn-add-edit-template-step').addEventListener('click', () => {
+    addEditTemplateStepRow();
+  });
+
+  document.getElementById('edit-template-steps-inputs-container').addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-delete-row')) {
+      const container = document.getElementById('edit-template-steps-inputs-container');
+      const rows = container.querySelectorAll('.template-step-row');
+      if (rows.length > 1) {
+        e.target.closest('.template-step-row').remove();
+        updateStepNumbers(container);
+      } else {
+        alert('Phải có ít nhất một bước thực hiện!');
+      }
+    }
+  });
+
+  // Submit Form: Edit Template
+  const formEditTemplate = document.getElementById('form-edit-template');
+  formEditTemplate.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const templateId = document.getElementById('edit-template-id').value;
+    const title = document.getElementById('edit-template-title').value.trim();
+    const description = document.getElementById('edit-template-desc').value.trim();
+    
+    const container = document.getElementById('edit-template-steps-inputs-container');
+    const stepRows = container.querySelectorAll('.template-step-row');
+    const steps = Array.from(stepRows).map(row => {
+      return {
+        id: row.querySelector('.template-step-id-input').value || undefined,
+        title: row.querySelector('.template-step-title-input').value.trim(),
+        description: row.querySelector('.template-step-desc-input').value.trim()
+      };
+    });
+    
+    showLoading('Đang lưu thay đổi...');
+    try {
+      const response = await fetch(`/api/templates/${templateId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, steps })
+      });
+      
+      if (response.ok) {
+        closeAllModals();
+        formEditTemplate.reset();
+        switchTab('templates');
+      } else {
+        alert('Cập nhật mẫu thất bại!');
+      }
+    } catch(err) {
+      console.error(err);
+    } finally {
+      hideLoading();
     }
   });
   
@@ -315,15 +387,8 @@ function setupEventListeners() {
         closeAllModals();
         elements.formCreateTemplate.reset();
         // Reset dynamic steps to single empty row
-        elements.templateStepsInputsContainer.innerHTML = `
-          <div class="template-step-row">
-            <div class="template-step-inputs">
-              <input type="text" class="template-step-title-input" required placeholder="Tên bước (Ví dụ: Kiểm tra kết nối database)">
-              <input type="text" class="template-step-desc-input" placeholder="Mô tả chi tiết bước thực hiện (Không bắt buộc)">
-            </div>
-            <button type="button" class="btn-delete-row">&times;</button>
-          </div>
-        `;
+        elements.templateStepsInputsContainer.innerHTML = '';
+        addTemplateStepInputRow();
         switchTab('templates');
       } else {
         alert('Tạo mẫu thất bại!');
@@ -482,17 +547,85 @@ function closeAllModals() {
 }
 
 // Add row to template step builders
-function addTemplateStepInputRow() {
+function addTemplateStepInputRow(title = '', desc = '') {
   const rowDiv = document.createElement('div');
   rowDiv.className = 'template-step-row';
   rowDiv.innerHTML = `
-    <div class="template-step-inputs">
-      <input type="text" class="template-step-title-input" required placeholder="Tên bước mới">
-      <input type="text" class="template-step-desc-input" placeholder="Mô tả chi tiết bước thực hiện">
+    <div class="template-step-header">
+      <span class="template-step-num">Bước</span>
+      <button type="button" class="btn-delete-row">&times; Xóa bước</button>
     </div>
-    <button type="button" class="btn-delete-row">&times;</button>
+    <div class="template-step-inputs">
+      <div class="step-input-group">
+        <label>Tên bước:</label>
+        <input type="text" class="template-step-title-input" required placeholder="Ví dụ: Kiểm tra kết nối database" value="${escapeHtml(title)}">
+      </div>
+      <div class="step-input-group">
+        <label>Mô tả chi tiết:</label>
+        <textarea class="template-step-desc-input" rows="2" placeholder="Mô tả chi tiết các việc cần làm (Không bắt buộc)">${escapeHtml(desc)}</textarea>
+      </div>
+    </div>
   `;
   elements.templateStepsInputsContainer.appendChild(rowDiv);
+  updateStepNumbers(elements.templateStepsInputsContainer);
+}
+
+// Add row to edit template step builders
+function addEditTemplateStepRow(title = '', desc = '', id = '') {
+  const container = document.getElementById('edit-template-steps-inputs-container');
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'template-step-row';
+  rowDiv.innerHTML = `
+    <input type="hidden" class="template-step-id-input" value="${id}">
+    <div class="template-step-header">
+      <span class="template-step-num">Bước</span>
+      <button type="button" class="btn-delete-row">&times; Xóa bước</button>
+    </div>
+    <div class="template-step-inputs">
+      <div class="step-input-group">
+        <label>Tên bước:</label>
+        <input type="text" class="template-step-title-input" required placeholder="Ví dụ: Kiểm tra kết nối database" value="${escapeHtml(title)}">
+      </div>
+      <div class="step-input-group">
+        <label>Mô tả chi tiết:</label>
+        <textarea class="template-step-desc-input" rows="2" placeholder="Mô tả chi tiết các việc cần làm (Không bắt buộc)">${escapeHtml(desc)}</textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(rowDiv);
+  updateStepNumbers(container);
+}
+
+// Helper: Update step numbers dynamically
+function updateStepNumbers(container) {
+  const rows = container.querySelectorAll('.template-step-row');
+  rows.forEach((row, idx) => {
+    const numSpan = row.querySelector('.template-step-num');
+    if (numSpan) {
+      numSpan.innerText = `Bước ${idx + 1}`;
+    }
+  });
+}
+
+// Open Edit Template Modal
+function openEditTemplateModal(template) {
+  const modal = document.getElementById('modal-edit-template');
+  document.getElementById('edit-template-id').value = template.id;
+  document.getElementById('edit-template-title').value = template.title;
+  document.getElementById('edit-template-desc').value = template.description || '';
+  
+  const container = document.getElementById('edit-template-steps-inputs-container');
+  container.innerHTML = '';
+  
+  if (template.steps && template.steps.length > 0) {
+    template.steps.forEach(step => {
+      addEditTemplateStepRow(step.title, step.description, step.id);
+    });
+  } else {
+    addEditTemplateStepRow();
+  }
+  
+  openModal(modal);
 }
 
 // Update Template dropdown select inside Start Job Modal
@@ -582,42 +715,53 @@ function renderTemplatesList() {
     return;
   }
   
-  state.templates.forEach(t => {
-    const card = document.createElement('div');
-    card.className = 'template-card';
-    card.innerHTML = `
-      <div class="card-title-row">
-        <span class="card-title">${escapeHtml(t.title)}</span>
-        <button class="btn-action btn-delete-template" style="width: 26px; height: 26px; border-radius: var(--radius-sm);" title="Xóa mẫu này">&times;</button>
-      </div>
-      <p class="card-desc" style="margin-bottom: 0;">${escapeHtml(t.description || 'Không có mô tả')}</p>
-      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; font-weight: 600;">
-        Tổng số bước: ${t.steps.length}
-      </div>
-    `;
-    
-    // Bind template delete
-    card.querySelector('.btn-delete-template').addEventListener('click', async (e) => {
-      e.stopPropagation();
-      if (confirm(`Bạn có muốn xóa mẫu "${t.title}" không?`)) {
-        showLoading('Đang xóa mẫu...');
-        try {
-          const res = await fetch(`/api/templates/${t.id}`, { method: 'DELETE' });
-          if (!res.ok) alert('Xóa mẫu thất bại!');
-        } catch(err) {
-          console.error(err);
-        } finally {
-          hideLoading();
+    state.templates.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      card.innerHTML = `
+        <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <span class="card-title" style="flex: 1; margin-right: 8px;">${escapeHtml(t.title)}</span>
+          <div style="display: flex; gap: 4px; flex-shrink: 0;">
+            <button class="btn-action btn-edit-template" style="width: 26px; height: 26px; border-radius: var(--radius-sm); padding: 0; display: flex; align-items: center; justify-content: center;" title="Sửa mẫu này">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            </button>
+            <button class="btn-action btn-delete-template" style="width: 26px; height: 26px; border-radius: var(--radius-sm); padding: 0; font-size: 1.1rem; line-height: 1; display: flex; align-items: center; justify-content: center;" title="Xóa mẫu này">&times;</button>
+          </div>
+        </div>
+        <p class="card-desc" style="margin-bottom: 0;">${escapeHtml(t.description || 'Không có mô tả')}</p>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; font-weight: 600;">
+          Tổng số bước: ${t.steps.length}
+        </div>
+      `;
+      
+      // Bind template edit
+      card.querySelector('.btn-edit-template').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditTemplateModal(t);
+      });
+      
+      // Bind template delete
+      card.querySelector('.btn-delete-template').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (confirm(`Bạn có muốn xóa mẫu "${t.title}" không?`)) {
+          showLoading('Đang xóa mẫu...');
+          try {
+            const res = await fetch(`/api/templates/${t.id}`, { method: 'DELETE' });
+            if (!res.ok) alert('Xóa mẫu thất bại!');
+          } catch(err) {
+            console.error(err);
+          } finally {
+            hideLoading();
+          }
         }
-      }
-    });
-    
-    // Bind template card click -> open start job modal with this selected
-    card.addEventListener('click', () => {
-      updateTemplateDropdowns();
-      document.getElementById('start-job-template-select').value = t.id;
-      openModal(elements.modalStartJob);
-    });
+      });
+      
+      // Bind template card click -> open start job modal with this selected
+      card.addEventListener('click', () => {
+        updateTemplateDropdowns();
+        document.getElementById('start-job-template-select').value = t.id;
+        openModal(elements.modalStartJob);
+      });
     
     elements.templatesListInner.appendChild(card);
   });

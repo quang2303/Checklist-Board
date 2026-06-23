@@ -1056,12 +1056,14 @@ function renderTimeline(timeline) {
   
   sortedTimeline.forEach(node => {
     const date = new Date(node.timestamp);
+    const dateStr = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
     const timeStr = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+    const fullTimeStr = `${dateStr} ${timeStr}`;
     
     const nodeEl = document.createElement('div');
     nodeEl.className = `timeline-node ${node.type || 'info'}`;
     nodeEl.innerHTML = `
-      <div class="timeline-node-time">${timeStr}</div>
+      <div class="timeline-node-time">${fullTimeStr}</div>
       <div class="timeline-node-body">
         <strong>${escapeHtml(node.author)}:</strong> ${escapeHtml(node.message)}
       </div>

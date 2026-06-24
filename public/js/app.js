@@ -515,6 +515,14 @@ function setupEventListeners() {
       exportMinutesToPDF(e);
     });
   }
+
+  // Radio listener for Minutes type selection
+  const typeRadios = document.querySelectorAll('input[name="export-minutes-type"]');
+  typeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      toggleMinutesFormType(e.target.value);
+    });
+  });
 }
 
 // Switch Side Panel Tab
@@ -1100,6 +1108,13 @@ function hideLoading() {
 function openExportMinutesModal() {
   const modal = document.getElementById('modal-export-minutes');
   
+  // Reset minutes type radio select
+  const defaultRadio = document.querySelector('input[name="export-minutes-type"][value="working"]');
+  if (defaultRadio) {
+    defaultRadio.checked = true;
+    toggleMinutesFormType('working');
+  }
+
   // Set Side A default fields
   document.getElementById('minutes-a-rep').value = state.currentUsername || 'Chúng Đức Quang';
   document.getElementById('minutes-a-role').value = 'Nhân viên tư vấn, lắp đặt hệ thống';
@@ -1195,69 +1210,158 @@ async function exportMinutesToPDF(e) {
   const month = String(dateObj.getMonth() + 1).padStart(2, '0');
   const year = dateObj.getFullYear();
   
-  // Parse time
-  const [endHour, endMinute] = endTime.split(':');
+  // Parse minutes type
+  const minutesType = document.querySelector('input[name="export-minutes-type"]:checked').value;
   
-  // Populate print template elements
-  document.getElementById('p-date-day').innerText = day;
-  document.getElementById('p-date-month').innerText = month;
-  document.getElementById('p-date-year').innerText = year;
-  
-  document.getElementById('p-a-rep').innerText = aRep || '................................................................';
-  document.getElementById('p-a-role').innerText = aRole || '................................................................';
-  
-  document.getElementById('p-b-name').innerText = bName || '................................................................';
-  document.getElementById('p-b-address').innerText = bAddress || '................................................................';
-  document.getElementById('p-b-phone').innerText = bPhone || '................................................................';
-  document.getElementById('p-b-rep').innerText = bRep || '................................................................';
-  document.getElementById('p-b-role').innerText = bRole || '................................................................';
-  
-  // Parse jobsText into list items
-  const jobsListEl = document.getElementById('p-jobs-list');
-  jobsListEl.innerHTML = '';
-  const jobsLines = jobsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-  jobsLines.forEach(line => {
-    const li = document.createElement('li');
-    li.innerText = line;
-    jobsListEl.appendChild(li);
-  });
-  
-  // Feedback
-  const feedbackEl = document.getElementById('p-b-feedback');
-  if (feedback) {
-    feedbackEl.innerText = feedback;
+  if (minutesType === 'handover') {
+    // Populate handover template
+    const minutesLbm = document.querySelector('#print-minutes-template .logo-lbm');
+    const minutesCanon = document.querySelector('#print-minutes-template .logo-canon');
+    const handoverLbm = document.querySelector('#print-handover-template .logo-lbm');
+    const handoverCanon = document.querySelector('#print-handover-template .logo-canon');
+    if (minutesLbm && handoverLbm) handoverLbm.src = minutesLbm.src;
+    if (minutesCanon && handoverCanon) handoverCanon.src = minutesCanon.src;
+
+    document.getElementById('p-handover-date-day').innerText = day;
+    document.getElementById('p-handover-date-month').innerText = month;
+    document.getElementById('p-handover-date-year').innerText = year;
+    
+    document.getElementById('p-handover-a-rep').innerText = aRep || '................................................................';
+    document.getElementById('p-handover-a-role').innerText = aRole || '................................................................';
+    
+    document.getElementById('p-handover-b-name').innerText = bName || '................................................................';
+    document.getElementById('p-handover-b-address').innerText = bAddress || '................................................................';
+    document.getElementById('p-handover-b-phone').innerText = bPhone || '................................................................';
+    document.getElementById('p-handover-b-rep').innerText = bRep || '................................................................';
+    document.getElementById('p-handover-b-role').innerText = bRole || '................................................................';
+    
+    // Parse jobsText into list items
+    const jobsListEl = document.getElementById('p-handover-jobs-list');
+    jobsListEl.innerHTML = '';
+    const jobsLines = jobsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    jobsLines.forEach(line => {
+      const li = document.createElement('li');
+      li.innerText = `- ${line}`;
+      li.style.position = 'relative';
+      li.style.marginBottom = '6px';
+      jobsListEl.appendChild(li);
+    });
+    
+    const printElement = document.getElementById('print-handover-template');
+    const opt = {
+      margin:       0,
+      filename:     `Bien_ban_ban_giao_${day}_${month}_${year}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    showLoading('Đang tạo và tải file PDF...');
+    try {
+      await html2pdf().from(printElement).set(opt).save();
+      closeAllModals();
+    } catch(err) {
+      console.error('Error generating PDF:', err);
+      alert('Có lỗi xảy ra khi xuất file PDF: ' + err.toString());
+    } finally {
+      hideLoading();
+    }
   } else {
-    feedbackEl.innerHTML = `<div class="comments-line"></div>` +
-                           `<div class="comments-line"></div>` +
-                           `<div class="comments-line"></div>` +
-                           `<div class="comments-line"></div>`;
+    // Populate working minutes template
+    const [endHour, endMinute] = endTime.split(':');
+    
+    document.getElementById('p-date-day').innerText = day;
+    document.getElementById('p-date-month').innerText = month;
+    document.getElementById('p-date-year').innerText = year;
+    
+    document.getElementById('p-a-rep').innerText = aRep || '................................................................';
+    document.getElementById('p-a-role').innerText = aRole || '................................................................';
+    
+    document.getElementById('p-b-name').innerText = bName || '................................................................';
+    document.getElementById('p-b-address').innerText = bAddress || '................................................................';
+    document.getElementById('p-b-phone').innerText = bPhone || '................................................................';
+    document.getElementById('p-b-rep').innerText = bRep || '................................................................';
+    document.getElementById('p-b-role').innerText = bRole || '................................................................';
+    
+    // Parse jobsText into list items
+    const jobsListEl = document.getElementById('p-jobs-list');
+    jobsListEl.innerHTML = '';
+    const jobsLines = jobsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    jobsLines.forEach(line => {
+      const li = document.createElement('li');
+      li.innerText = line;
+      jobsListEl.appendChild(li);
+    });
+    
+    // Feedback
+    const feedbackEl = document.getElementById('p-b-feedback');
+    if (feedback) {
+      feedbackEl.innerText = feedback;
+    } else {
+      feedbackEl.innerHTML = `<div class="comments-line"></div>` +
+                             `<div class="comments-line"></div>` +
+                             `<div class="comments-line"></div>` +
+                             `<div class="comments-line"></div>`;
+    }
+    
+    document.getElementById('p-end-hour').innerText = endHour;
+    document.getElementById('p-end-minute').innerText = endMinute;
+    document.getElementById('p-end-day').innerText = day;
+    document.getElementById('p-end-month').innerText = month;
+    document.getElementById('p-end-year').innerText = year;
+    
+    // Export PDF using html2pdf.js
+    const printElement = document.getElementById('print-minutes-template');
+    const opt = {
+      margin:       0,
+      filename:     `Bien_ban_lam_viec_${day}_${month}_${year}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    showLoading('Đang tạo và tải file PDF...');
+    try {
+      await html2pdf().from(printElement).set(opt).save();
+      closeAllModals();
+    } catch(err) {
+      console.error('Error generating PDF:', err);
+      alert('Có lỗi xảy ra khi xuất file PDF: ' + err.toString());
+    } finally {
+      hideLoading();
+    }
   }
-  
-  document.getElementById('p-end-hour').innerText = endHour;
-  document.getElementById('p-end-minute').innerText = endMinute;
-  document.getElementById('p-end-day').innerText = day;
-  document.getElementById('p-end-month').innerText = month;
-  document.getElementById('p-end-year').innerText = year;
-  
-  // Export PDF using html2pdf.js
-  const printElement = document.getElementById('print-minutes-template');
-  const opt = {
-    margin:       0,
-    filename:     `Bien_ban_lam_viec_${day}_${month}_${year}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  
-  showLoading('Đang tạo và tải file PDF...');
-  try {
-    // Generate and download
-    await html2pdf().from(printElement).set(opt).save();
-    closeAllModals();
-  } catch(err) {
-    console.error('Error generating PDF:', err);
-    alert('Có lỗi xảy ra khi xuất file PDF: ' + err.toString());
-  } finally {
-    hideLoading();
+}
+
+// Toggle minutes form inputs based on the selected type
+function toggleMinutesFormType(type) {
+  const modalTitle = document.getElementById('minutes-modal-title');
+  const jobsHeader = document.getElementById('minutes-jobs-header');
+  const jobsHelp = document.getElementById('minutes-jobs-help');
+  const feedbackGroup = document.getElementById('minutes-feedback-group');
+  const timeGroup = document.getElementById('minutes-time-group');
+  const extraHeader = document.getElementById('minutes-extra-header');
+  const timeInput = document.getElementById('minutes-end-time');
+
+  if (type === 'handover') {
+    if (modalTitle) modalTitle.innerText = 'Lập Biên Bản Bàn Giao';
+    if (jobsHeader) jobsHeader.innerText = 'Nội dung bàn giao';
+    if (jobsHelp) jobsHelp.innerText = 'Nhập nội dung bàn giao (ví dụ: các thiết bị, phần mềm, kiosk...). Mỗi dòng là một hạng mục.';
+    if (feedbackGroup) feedbackGroup.style.display = 'none';
+    if (timeGroup) {
+      timeGroup.style.display = 'none';
+      timeInput.removeAttribute('required');
+    }
+    if (extraHeader) extraHeader.innerText = 'Thời gian lập biên bản';
+  } else {
+    if (modalTitle) modalTitle.innerText = 'Lập Biên Bản Làm Việc Hôm Nay';
+    if (jobsHeader) jobsHeader.innerText = 'Nội dung công việc đã thực hiện';
+    if (jobsHelp) jobsHelp.innerText = 'Dưới đây là các công việc hoàn thành trong hôm nay. Bạn có thể chỉnh sửa hoặc thêm dòng mới.';
+    if (feedbackGroup) feedbackGroup.style.display = 'block';
+    if (timeGroup) {
+      timeGroup.style.display = 'block';
+      timeInput.setAttribute('required', 'true');
+    }
+    if (extraHeader) extraHeader.innerText = 'Thông tin bổ sung & Kết thúc';
   }
 }

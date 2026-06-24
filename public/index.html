@@ -360,12 +360,27 @@
   <div class="modal-overlay" id="modal-export-minutes">
     <div class="modal-content" style="max-width: 700px; width: 90%;">
       <div class="modal-header">
-        <h3>Lập Biên Bản Làm Việc Hôm Nay</h3>
+        <h3 id="minutes-modal-title">Lập Biên Bản Làm Việc Hôm Nay</h3>
         <button class="modal-close-btn">&times;</button>
       </div>
       <form id="form-export-minutes">
         <div class="modal-body"
           style="max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+
+          <!-- Minutes Type Selection -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px; display: block;">Loại Biên Bản</label>
+            <div style="display: flex; gap: 24px; align-items: center;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary); font-size: 0.95rem; font-weight: 500; text-transform: none; letter-spacing: normal;">
+                <input type="radio" name="export-minutes-type" value="working" checked style="width: auto; margin: 0; accent-color: var(--primary); cursor: pointer;">
+                Biên bản làm việc
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary); font-size: 0.95rem; font-weight: 500; text-transform: none; letter-spacing: normal;">
+                <input type="radio" name="export-minutes-type" value="handover" style="width: auto; margin: 0; accent-color: var(--primary); cursor: pointer;">
+                Biên bản bàn giao
+              </label>
+            </div>
+          </div>
 
           <!-- Bên A (LBM) -->
           <div
@@ -376,13 +391,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="minutes-a-rep">Họ và tên đại diện:</label>
-                <input type="text" id="minutes-a-rep" class="form-control"
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="text" id="minutes-a-rep" class="form-control" placeholder="Tên người đại diện...">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="minutes-a-role">Chức vụ:</label>
-                <input type="text" id="minutes-a-role" class="form-control"
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="text" id="minutes-a-role" class="form-control" placeholder="Chức vụ...">
               </div>
             </div>
           </div>
@@ -395,68 +408,59 @@
               Đại diện Bên B (Khách hàng)</h4>
             <div class="form-group" style="margin-bottom: 12px;">
               <label for="minutes-b-name">Cơ quan / Đơn vị:</label>
-              <input type="text" id="minutes-b-name" placeholder="Ví dụ: Ủy ban nhân dân phường Bình Dương" required
-                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              <input type="text" id="minutes-b-name" class="form-control" placeholder="Ví dụ: Ủy ban nhân dân phường Bình Dương" required>
             </div>
             <div class="form-group" style="margin-bottom: 12px;">
               <label for="minutes-b-address">Địa chỉ:</label>
-              <input type="text" id="minutes-b-address" placeholder="Nhập địa chỉ của cơ quan..."
-                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              <input type="text" id="minutes-b-address" class="form-control" placeholder="Nhập địa chỉ của cơ quan...">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="minutes-b-rep">Họ và tên đại diện:</label>
-                <input type="text" id="minutes-b-rep" placeholder="Tên người đại diện..."
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="text" id="minutes-b-rep" class="form-control" placeholder="Tên người đại diện...">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="minutes-b-role">Chức vụ:</label>
-                <input type="text" id="minutes-b-role" placeholder="Chức vụ..."
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="text" id="minutes-b-role" class="form-control" placeholder="Chức vụ...">
               </div>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="minutes-b-phone">Điện thoại:</label>
-              <input type="text" id="minutes-b-phone" placeholder="Nhập số điện thoại liên hệ..."
-                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+              <input type="text" id="minutes-b-phone" class="form-control" placeholder="Nhập số điện thoại liên hệ...">
             </div>
           </div>
 
           <!-- Nội dung công việc -->
           <div
             style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
-            <h4
+            <h4 id="minutes-jobs-header"
               style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
               Nội dung công việc đã thực hiện</h4>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Dưới đây là các công việc hoàn
+            <p id="minutes-jobs-help" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Dưới đây là các công việc hoàn
               thành trong hôm nay. Bạn có thể chỉnh sửa hoặc thêm dòng mới.</p>
             <div class="form-group" style="margin-bottom: 0;">
-              <textarea id="minutes-jobs-text" rows="5" placeholder="Mỗi dòng là một công việc đã thực hiện..." required
-                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+              <textarea id="minutes-jobs-text" rows="5" placeholder="Mỗi dòng là một công việc đã thực hiện..." required></textarea>
             </div>
           </div>
 
           <!-- Ý kiến kiến nghị & Thời gian kết thúc -->
           <div
             style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
-            <h4
+            <h4 id="minutes-extra-header"
               style="font-size: 0.85rem; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; font-weight: 700;">
               Thông tin bổ sung & Kết thúc</h4>
-            <div class="form-group" style="margin-bottom: 12px;">
+            <div class="form-group" id="minutes-feedback-group" style="margin-bottom: 12px;">
               <label for="minutes-b-feedback">Ý kiến/Kiến nghị khác của Bên B (nếu có):</label>
-              <textarea id="minutes-b-feedback" rows="2" placeholder="Nhập ý kiến, phản hồi hoặc kiến nghị..."
-                style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+              <textarea id="minutes-b-feedback" rows="2" placeholder="Nhập ý kiến, phản hồi hoặc kiến nghị..."></textarea>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <div class="form-group" style="margin-bottom: 0;">
+              <div class="form-group" id="minutes-time-group" style="margin-bottom: 0;">
                 <label for="minutes-end-time">Thời gian kết thúc (Giờ/Phút):</label>
-                <input type="time" id="minutes-end-time" required
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="time" id="minutes-end-time" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="minutes-end-date">Ngày lập biên bản:</label>
-                <input type="date" id="minutes-end-date" required
-                  style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;">
+                <input type="date" id="minutes-end-date" required>
               </div>
             </div>
           </div>
@@ -601,6 +605,121 @@
         </div>
       </div>
     </div>
+
+    <!-- HANDOVER PRINT TEMPLATE -->
+    <div id="print-handover-template">
+      <!-- HEADER -->
+      <div class="paper-header">
+        <div class="header-top-row">
+          <img class="logo-lbm" src="" alt="LBM Logo">
+          <div class="company-title">CÔNG TY CP ĐẦU TƯ LBM</div>
+          <img class="logo-canon" src="" alt="Canon Logo">
+        </div>
+        <div class="header-bottom-info">
+          <div style="margin-bottom: 2px;">Add: Tầng 14, Tòa nhà HM Town, Số 412 Nguyễn Thị Minh Khai, Phường Bàn Cờ, TP Hồ Chí Minh, Việt Nam</div>
+          <div>Tel: (028) 3838 6666 / Fax: 024.37478150 &nbsp; Website: www.lbm.vn</div>
+        </div>
+      </div>
+
+      <!-- TITLE -->
+      <div class="doc-title-container">
+        <div class="doc-title" style="font-family: 'Times New Roman', Times, serif; font-size: 18pt;">BIÊN BẢN BÀN GIAO</div>
+        <div class="doc-subtitle">
+          Hôm nay, ngày <span id="p-handover-date-day">...</span> tháng <span id="p-handover-date-month">...</span> năm <span id="p-handover-date-year">...</span>, hai bên gồm có:
+        </div>
+      </div>
+
+      <!-- PARTY A -->
+      <div class="party-a-block">
+        <div class="party-title">BÊN GIAO (Bên A): CÔNG TY CỔ PHẦN ĐẦU TƯ LBM</div>
+        <div class="doc-row">
+          <div class="doc-label">Địa chỉ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">Tầng 14, Tòa nhà HM Town, Số 412 Nguyễn Thị Minh Khai, Phường Bàn Cờ, TP Hồ Chí Minh, Việt Nam</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Điện thoại</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">
+            <div class="doc-input-inline-group">
+              <div class="doc-input-inline-item" style="flex: 2;">(028) 3838 6666</div>
+              <div class="doc-input-inline-item" style="flex: 3;">
+                <span class="doc-label-inline">Fax:</span> (028) 3837 6666
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Mã số thuế</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value">0308782333</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Đại diện</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" style="font-weight: bold;" id="p-handover-a-rep">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Chức vụ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-handover-a-role">...</div>
+        </div>
+      </div>
+
+      <!-- PARTY B -->
+      <div class="party-b-block">
+        <div class="party-title">
+          BÊN NHẬN (Bên B): <span id="p-handover-b-name" style="font-weight: bold;">...</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Địa chỉ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-handover-b-address">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Điện thoại</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-handover-b-phone">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Đại diện</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" style="font-weight: bold;" id="p-handover-b-rep">...</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-label">Chức vụ</div>
+          <div class="doc-separator">:</div>
+          <div class="doc-value" id="p-handover-b-role">...</div>
+        </div>
+      </div>
+
+      <!-- WORK COMPLETED -->
+      <div style="margin-top: 15px; font-weight: bold; font-style: italic; font-family: 'Times New Roman', Times, serif; font-size: 13pt;">Hai bên cùng ký kết biên bản bàn giao hệ thống như sau:</div>
+      <div style="margin-top: 5px; margin-bottom: 10px; font-family: 'Times New Roman', Times, serif; font-size: 13pt;">Bên A giao thiết bị và phần mềm theo yêu cầu của bên B.</div>
+      <div class="section-title">Nội dung bàn giao:</div>
+      <ul class="work-list" id="p-handover-jobs-list">
+        <!-- populated from javascript -->
+      </ul>
+
+      <!-- FOOTER BOILERPLATE -->
+      <div class="footer-bullets" style="font-family: 'Times New Roman', Times, serif; font-size: 13pt; margin-top: 15px;">
+        <div class="bullet-row">* Hai bên không có kiến nghị gì về tình trạng máy, các chức năng máy và phụ kiện đi kèm theo máy. Biên bản được thông qua với sự đồng ý của hai bên.</div>
+        <div class="bullet-row">* Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý ngang nhau.</div>
+      </div>
+
+      <!-- SIGNATURES -->
+      <div class="signatures-container">
+        <div class="signature-box">
+          <div class="sig-title" style="font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold;">ĐẠI DIỆN BÊN A</div>
+          <div style="height: 100px;"></div>
+        </div>
+        <div class="signature-box">
+          <div class="sig-title" style="font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold;">ĐẠI DIỆN BÊN B</div>
+          <div style="height: 100px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- GLOBAL LOADING OVERLAY -->
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-spinner-wrapper">
